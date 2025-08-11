@@ -264,6 +264,47 @@ curl -X POST http://localhost:3001/run-command \
   -d '{"input": "구글에서 쿠팡 노트북 검색해줘"}'
 ```
 
+## 🌐 **배포하기 (무료)**
+
+### **Vercel로 자동 배포 (추천)**
+
+1. **Vercel 계정 생성**
+   - [vercel.com](https://vercel.com)에서 GitHub 계정으로 로그인
+
+2. **프로젝트 Import**
+   - "New Project" → GitHub 리포지토리 선택
+   - 자동으로 설정 파일 인식
+
+3. **환경 변수 설정**
+   - Vercel 대시보드 → Settings → Environment Variables
+   - 다음 변수들을 추가:
+   ```
+   GEMINI_API_KEY=your_actual_api_key
+   NODE_ENV=production
+   CORS_ORIGIN=https://your-domain.vercel.app
+   ```
+
+4. **자동 배포**
+   - GitHub에 push할 때마다 자동으로 배포됨
+   - `https://your-project.vercel.app`에서 확인 가능
+
+### **다른 무료 옵션들**
+
+- **GitHub Pages**: 정적 사이트만 (프론트엔드)
+- **Netlify**: 서버리스 함수 지원
+- **Railway**: 무료 크레딧 제공
+
+### **배포 후 확인**
+```bash
+# 프로덕션 서버 상태 확인
+curl https://your-project.vercel.app/health
+
+# API 테스트
+curl -X POST https://your-project.vercel.app/run-command \
+  -H "Content-Type: application/json" \
+  -d '{"input": "테스트"}'
+```
+
 ## 🤝 **개발 방식**
 
 ### **AI 주도 개발**

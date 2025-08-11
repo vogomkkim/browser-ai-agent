@@ -8,6 +8,7 @@
     "dev": "node --watch backend/index.js",
     "start": "node backend/index.js",
     "build": "tsc",
+    "vercel-build": "echo 'Vercel build completed'",
     "test": "vitest",
     "lint": "eslint . --ext .js,.ts",
     "format": "prettier --write .",
