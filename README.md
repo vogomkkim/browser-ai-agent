@@ -277,15 +277,20 @@ curl -X POST http://localhost:3001/run-command \
 
 3. **환경 변수 설정**
    - Vercel 대시보드 → Settings → Environment Variables
-   - 다음 변수들을 추가:
+   - `env.production.example` 파일 참고하여 설정
+
+4. **GitHub Secrets 설정**
+   - GitHub 리포지토리 → Settings → Secrets and variables → Actions
+   - 다음 secrets 추가:
    ```
-   GEMINI_API_KEY=your_actual_api_key
-   NODE_ENV=production
-   CORS_ORIGIN=https://your-domain.vercel.app
+   VERCEL_TOKEN=your_vercel_token
+   VERCEL_ORG_ID=your_org_id
+   VERCEL_PROJECT_ID=your_project_id
    ```
 
-4. **자동 배포**
-   - GitHub에 push할 때마다 자동으로 배포됨
+5. **실시간 자동 배포**
+   - `main` 브랜치에 push하면 즉시 Vercel 배포
+   - 빠른 linting 체크 후 바로 배포 (테스트 생략)
    - `https://your-project.vercel.app`에서 확인 가능
 
 ### **다른 무료 옵션들**
