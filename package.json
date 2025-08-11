@@ -1,0 +1,63 @@
+{
+  "name": "browser-ai-agent",
+  "version": "1.0.0",
+  "description": "AI 기반으로 시작하여 무한한 웹 자동화 가능성을 제공하는 혁신적인 브라우저 에이전트",
+  "type": "module",
+  "main": "backend/index.js",
+  "scripts": {
+    "dev": "node --watch backend/index.js",
+    "start": "node backend/index.js",
+    "build": "tsc",
+    "test": "vitest",
+    "lint": "eslint . --ext .js,.ts",
+    "format": "prettier --write .",
+    "playwright:install": "playwright install",
+    "playwright:test": "playwright test"
+  },
+  "keywords": [
+    "ai",
+    "browser-automation",
+    "playwright",
+    "openai",
+    "web-automation",
+    "ai-agent"
+  ],
+  "author": "Browser AI Agent Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "openai": "^5.12.2",
+    "playwright": "^1.54.2",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.1",
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "eslint": "^8.55.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/browser-ai-agent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/browser-ai-agent/issues"
+  },
+  "homepage": "https://github.com/your-username/browser-ai-agent#readme"
+}
