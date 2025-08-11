@@ -95,6 +95,9 @@ screenshots/
 # Vercel
 .vercel
 
+# Vercel Playwright 설정
+vercel-playwright.js
+
 # Playwright
 test-results/
 playwright-report/

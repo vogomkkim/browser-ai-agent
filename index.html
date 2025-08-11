@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 Browser AI Agent</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .log-info { background: rgba(52, 152, 219, 0.3); }
+        .log-success { background: rgba(46, 204, 113, 0.3); }
+        .log-error { background: rgba(231, 76, 60, 0.3); }
+        .log-warning { background: rgba(241, 196, 15, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Browser AI Agent</h1>
+        
+        <div class="chat-container">
+            <div class="input-group">
+                <input type="text" id="userInput" placeholder="무엇을 도와드릴까요? (예: 구글에서 쿠팡 노트북 검색해줘)" />
+                <button id="runButton" onclick="runCommand()">실행하기</button>
+            </div>
+            
+            <div class="status" id="status">
+                📊 실행 상태: 준비됨
+            </div>
+        </div>
+        
+        <div class="log" id="log">
+            <div class="log-entry log-info">🚀 Browser AI Agent가 시작되었습니다.</div>
+            <div class="log-entry log-info">💡 자연어로 명령을 입력해보세요!</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

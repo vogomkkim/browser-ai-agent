@@ -31,13 +31,8 @@ app.use(cors({ origin: config.cors.origin }));
 const limiter = rateLimit({ windowMs: config.rateLimit.windowMs, max: config.rateLimit.max });
 app.use(limiter);
 
-// 정적 파일 제공 (채팅 인터페이스)
-app.use(express.static(path.join(__dirname, 'public')));
-
-// 루트 경로에서 채팅 인터페이스 제공
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Vercel에서는 정적 파일을 루트의 public 디렉토리에서 제공
+// API 서버는 /api 경로로만 접근
 
 // 스마트 입력 프로세서 초기화
 const smartProcessor = new SmartInputProcessor(config.ai.geminiApiKey);
