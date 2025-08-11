@@ -321,12 +321,15 @@
                 
                 if (result.success) {
                     // 성공 메시지
-                    const successMsg = `✅ **${result.originalInput}** → **${result.processedInput}**\n\n` +
-                                     `🤖 AI가 ${result.commands.length}개의 명령어를 생성했습니다.\n` +
-                                     `⏱️ 총 소요시간: ${result.totalTime}ms\n` +
-                                     `🌐 브라우저 상태: ${result.execution.browserStatus}\n\n` +
-                                     `**실행된 명령어:**\n` +
-                                     result.commands.map(cmd => `• ${cmd.description}`).join('\n');
+                    const successSummary = result?.executionResult?.executionSummary;
+                    const successMsg = successSummary ? (
+                        `✅ 작업이 완료되었습니다.\n\n` +
+                        `🤖 총 ${successSummary.total}개의 명령어가 처리되었습니다.\n` +
+                        `✅ 성공: ${successSummary.successful} | ❌ 실패: ${successSummary.failed}\n` +
+                        `🌐 브라우저 상태: ${result?.executionResult?.browserStatus}\n\n` +
+                        `**성공한 명령어:**\n` +
+                        successSummary.commands.filter(c => c.status === 'success').map(cmd => `• ${cmd.description}`).join('\n')
+                    ) : '✅ 작업이 완료되었습니다.';
                     
                     addMessage(successMsg, 'bot');
                 } else {

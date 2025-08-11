@@ -5,6 +5,12 @@ import { runBrowserAutomation, closeBrowser, getBrowserStatus } from './agent/br
 import { SmartInputProcessor } from './services/smartInputProcessor.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import helmet from 'helmet';
+import cors from 'cors';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+import { getConfig, validateConfig } from './config/config.js';
+import { createLogger } from './config/logger.js';
 
 dotenv.config();
 
@@ -13,6 +19,17 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
+
+// Security and performance middlewares
+const config = getConfig();
+const logger = createLogger({ level: config.logging.level, file: config.logging.file });
+
+app.use(helmet());
+app.use(compression());
+app.use(cors({ origin: config.cors.origin }));
+
+const limiter = rateLimit({ windowMs: config.rateLimit.windowMs, max: config.rateLimit.max });
+app.use(limiter);
 
 // 정적 파일 제공 (채팅 인터페이스)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -23,20 +40,18 @@ app.get('/', (req, res) => {
 });
 
 // 스마트 입력 프로세서 초기화
-const smartProcessor = new SmartInputProcessor(process.env.GEMINI_API_KEY);
+const smartProcessor = new SmartInputProcessor(config.ai.geminiApiKey);
 
 // 환경 변수 검증
 function validateEnvironment() {
-  const required = ['GEMINI_API_KEY'];
-  const missing = required.filter(key => !process.env[key]);
-  
-  if (missing.length > 0) {
-    console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+  try {
+    validateConfig(config);
+    logger.info('Environment variables validated');
+  } catch (e) {
+    console.error(`❌ ${e.message}`);
     console.error('Please check your .env file or env.example for reference');
     process.exit(1);
   }
-  
-  console.log('✅ Environment variables validated');
 }
 
 // 브라우저 자동화 실행 엔드포인트
@@ -48,31 +63,38 @@ app.post('/run-command', async (req, res) => {
       return res.status(400).json({ error: 'Input is required' });
     }
 
-    console.log(`🤖 Original user input: "${input}"`);
+    logger.info(`🤖 Original user input: "${input}"`);
 
     // 🔍 1단계: 요청 의도 분석
     const intent = SmartInputProcessor.analyzeIntent(input);
-    console.log(`🎯 Intent: ${intent.type} - ${intent.reason}`);
-    console.log(`🌐 Browser mode: ${intent.browserMode}`);
+    logger.info(`🎯 Intent: ${intent.type} - ${intent.reason}`);
+    logger.info(`🌐 Browser mode: ${intent.browserMode}`);
 
     // 🔍 2단계: 스마트 입력 처리
     const processedInput = SmartInputProcessor.quickProcess(input);
-    console.log(`⚡ Quick pattern match: "${input}" → "${processedInput.processedCommand}"`);
-    console.log(`📋 Intent: ${processedInput.intent.type} - ${processedInput.intent.reason}`);
+    logger.info(`⚡ Quick pattern match: "${input}" → "${processedInput.processedCommand}"`);
+    logger.info(`📋 Intent: ${processedInput.intent.type} - ${processedInput.intent.reason}`);
 
     // 🔍 3단계: 명령어 생성
-    console.log(`📋 Generating commands for: "${processedInput.processedCommand}"`);
+    logger.info(`📋 Generating commands for: "${processedInput.processedCommand}"`);
     const startTime = Date.now();
     
-    const commands = await buildCommandList(processedInput.processedCommand);
-    commands.modelUsed = 'google/gemini-1.5-flash';
+    const commandGen = await buildCommandList(processedInput.processedCommand);
+
+    if (!commandGen.success) {
+      throw new Error(commandGen.error || 'Failed to generate commands');
+    }
+
+    // Attach modelUsed to the array for downstream logging compatibility
+    const commandArray = commandGen.commands || [];
+    commandArray.modelUsed = commandGen.modelUsed || `${config.ai.provider}/${config.ai.model}`;
     
     const generationTime = Date.now() - startTime;
-    console.log(`📋 Generated ${commands.length} commands using ${commands.modelUsed}`);
-    console.log(`⏱️  Command generation took ${generationTime}ms`);
+    logger.info(`📋 Generated ${commandArray.length} commands using ${commandArray.modelUsed}`);
+    logger.info(`⏱️  Command generation took ${generationTime}ms`);
 
     // 🔍 4단계: 브라우저 자동화 실행
-    const result = await runBrowserAutomation(commands);
+    const result = await runBrowserAutomation(commandArray);
     
     // 🔍 5단계: 의도에 따른 응답 생성
     let userResponse;
@@ -92,10 +114,10 @@ app.post('/run-command', async (req, res) => {
 
     // 🔍 6단계: 브라우저 모드에 따른 추가 처리
     if (intent.browserMode === 'background') {
-      console.log(`🌐 Browser will remain in background mode for informational request`);
+      logger.info(`🌐 Browser will remain in background mode for informational request`);
       // 브라우저를 백그라운드로 유지 (사용자가 직접 보고 싶지 않음)
     } else if (intent.browserMode === 'foreground') {
-      console.log(`🌐 Browser will be brought to foreground for actionable request`);
+      logger.info(`🌐 Browser will be brought to foreground for actionable request`);
       // 브라우저를 포어그라운드로 가져오기 (사용자가 직접 조작하고 싶음)
     }
 
@@ -222,14 +244,14 @@ app.get('/health', (req, res) => {
 });
 
 // 서버 시작
-const PORT = process.env.PORT || 3001;
+const PORT = config.port || process.env.PORT || 3001;
 
 app.listen(PORT, () => {
   console.log('🚀 Browser AI Agent Server Starting...');
   validateEnvironment();
   console.log(`🌐 Server running on http://localhost:${PORT}`);
-  console.log(`🤖 AI Model: ${process.env.AI_MODEL_PROVIDER || 'google'}/${process.env.GEMINI_MODEL || 'gemini-1.5-flash'}`);
-  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🤖 AI Model: ${config.ai.provider}/${config.ai.model}`);
+  console.log(`🔧 Environment: ${config.nodeEnv}`);
   console.log(`🧠 Smart Input Processing: Enabled`);
   console.log(`⚡ Quick Pattern Matching: Enabled`);
   console.log(`🌐 Persistent Browser: Enabled`);
