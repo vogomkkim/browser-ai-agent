@@ -18,8 +18,9 @@ export async function runBrowserAutomation(commands) {
   }
 
   const logs = [];
+  const commandArray = Array.isArray(commands) ? commands : (commands?.commands || []);
   const executionSummary = {
-    total: commands.length,
+    total: commandArray.length,
     successful: 0,
     failed: 0,
     skipped: 0,
@@ -33,14 +34,14 @@ export async function runBrowserAutomation(commands) {
     const viewportHeight = parseInt(process.env.BROWSER_VIEWPORT_HEIGHT) || 720;
     await activePage.setViewportSize({ width: viewportWidth, height: viewportHeight });
 
-    console.log(`📋 Executing ${commands.length} commands step by step...`);
+    console.log(`📋 Executing ${commandArray.length} commands step by step...`);
 
-    for (let i = 0; i < commands.length; i++) {
-      const cmd = commands[i];
+    for (let i = 0; i < commandArray.length; i++) {
+      const cmd = commandArray[i];
       const stepNumber = i + 1;
       
       try {
-        console.log(`\n🔄 Step ${stepNumber}/${commands.length}: ${cmd.description}`);
+        console.log(`\n🔄 Step ${stepNumber}/${commandArray.length}: ${cmd.description}`);
         
         // 동적 탐색이 필요한 명령어인지 확인
         if (cmd.action === 'click' && cmd.requiresDynamicSearch) {
@@ -146,23 +147,23 @@ export async function runBrowserAutomation(commands) {
     console.log('💡 Browser will remain open for continuous automation.');
     console.log('🔒 To close browser, use the /close-browser endpoint.');
 
-    return {
-      success: true,
-      logs,
-      executionTime,
-      modelUsed: commands.modelUsed || 'unknown',
-      browserStatus: 'open',
-      message: 'Browser remains open for continuous automation',
-      stepsExecuted: commands.length,
-      executionDetails: {
-        totalSteps: commands.length,
-        successfulSteps: executionSummary.successful,
-        failedSteps: executionSummary.failed,
-        skippedSteps: executionSummary.skipped
-      },
-      // 🔥 새로운 필드: 완전한 실행 요약
-      executionSummary: executionSummary
-    };
+          return {
+        success: true,
+        logs,
+        executionTime,
+        modelUsed: commandArray.modelUsed || 'unknown',
+        browserStatus: 'open',
+        message: 'Browser remains open for continuous automation',
+        stepsExecuted: commandArray.length,
+        executionDetails: {
+          totalSteps: commandArray.length,
+          successfulSteps: executionSummary.successful,
+          failedSteps: executionSummary.failed,
+          skippedSteps: executionSummary.skipped
+        },
+        // 🔥 새로운 필드: 완전한 실행 요약
+        executionSummary: executionSummary
+      };
 
   } catch (error) {
     const executionTime = Date.now() - startTime;
@@ -171,24 +172,24 @@ export async function runBrowserAutomation(commands) {
     console.log('🌐 Browser remains open for debugging.');
 
     // 🔥 실패한 명령어들도 포함해서 반환
-    return {
-      success: false,
-      logs: [...logs, `Fatal error: ${error.message}`],
-      error: error.message,
-      executionTime,
-      modelUsed: commands.modelUsed || 'unknown',
-      browserStatus: 'open',
-      message: 'Browser remains open for debugging',
-      stepsExecuted: logs.filter(log => !log.includes('Error')).length,
-      executionDetails: {
-        totalSteps: commands.length,
-        successfulSteps: executionSummary.successful,
-        failedSteps: executionSummary.failed + 1, // +1 for fatal error
-        skippedSteps: executionSummary.skipped
-      },
-      // 🔥 새로운 필드: 완전한 실행 요약 (실패 포함)
-      executionSummary: executionSummary
-    };
+          return {
+        success: false,
+        logs: [...logs, `Fatal error: ${error.message}`],
+        error: error.message,
+        executionTime,
+        modelUsed: commandArray.modelUsed || 'unknown',
+        browserStatus: 'open',
+        message: 'Browser remains open for debugging',
+        stepsExecuted: logs.filter(log => !log.includes('Error')).length,
+        executionDetails: {
+          totalSteps: commandArray.length,
+          successfulSteps: executionSummary.successful,
+          failedSteps: executionSummary.failed + 1, // +1 for fatal error
+          skippedSteps: executionSummary.skipped
+        },
+        // 🔥 새로운 필드: 완전한 실행 요약 (실패 포함)
+        executionSummary: executionSummary
+      };
   }
 }
 

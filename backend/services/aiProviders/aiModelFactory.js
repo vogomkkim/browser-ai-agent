@@ -1,4 +1,5 @@
 import { GeminiProvider } from './geminiProvider.js';
+import { getConfig } from '../../config/config.js';
 
 export class AIModelFactory {
   static createProvider(config) {
@@ -27,10 +28,11 @@ export class AIModelFactory {
   }
 
   static getDefaultConfig() {
+    const appConfig = getConfig();
     return {
-      provider: process.env.AI_MODEL_PROVIDER || 'google',
-      model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-      apiKey: process.env.GEMINI_API_KEY,
+      provider: appConfig.ai.provider,
+      model: appConfig.ai.model,
+      apiKey: appConfig.ai.geminiApiKey,
       options: {}
     };
   }
