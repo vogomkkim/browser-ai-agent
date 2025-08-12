@@ -62,7 +62,7 @@ export async function runBrowserAutomation(commands) {
           executionSummary.successful++;
           console.log(`✅ Step ${stepNumber} completed: ${dynamicResult}`);
         } else {
-          const log = await executeCommand(activePage, cmd);
+          const log = await executeCommand(activePage, cmd, stepNumber);
           logs.push(log);
           
           // 성공한 명령어 기록
@@ -393,7 +393,7 @@ export function getBrowserStatus() {
   };
 }
 
-async function executeCommand(page, cmd) {
+async function executeCommand(page, cmd, stepNumber) {
   const { action, description } = cmd;
 
   switch (action) {
@@ -432,7 +432,7 @@ async function executeCommand(page, cmd) {
       return `✅ ${description || `Scrolled ${direction}`}`;
 
     case 'extractText':
-      if (!cmd.selector) throw new Error(`Command ${index}: 'extractText' requires 'selector' field`);
+      if (!cmd.selector) throw new Error(`Command ${stepNumber}: 'extractText' requires 'selector' field`);
       const extractedText = await page.textContent(cmd.selector);
       return `✅ ${description || `Extracted text from ${cmd.selector}: "${extractedText}"`}`;
 
